@@ -74,10 +74,10 @@ function songInfo() {
             console.log('Error occurred: ' + err);
             return;
         }
- 	var results = data.tracks.items;
+ 	var results = data.tracks.items[0];
 
 
-    console.log("Artist: " + results.album.artists.name);
+    console.log("Artist: " + results.artists[0].name);
     console.log("Song name: " + results.name);
     console.log("Listen here: " + results.preview_url);
     console.log("Found on album: " + results.album.name);
