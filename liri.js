@@ -57,7 +57,7 @@ function findMovie() {
 }
 
 function pullTweets() {
-
+	//Needs to be done
 }
 
 function songInfo() {
@@ -67,15 +67,33 @@ function songInfo() {
 			songName = songName.substring(0, i) + "+" + songName.substring(i + 1);
 		}
 	}
-}
+
+    spotify.search({ type: 'track', query: songName }, 
+    function(err, data) {
+        if ( err ) {
+            console.log('Error occurred: ' + err);
+            return;
+        }
+ 	var results = data.tracks.items;
+
+
+    console.log("Artist: " + results.album.artists.name);
+    console.log("Song name: " + results.name);
+    console.log("Listen here: " + results.preview_url);
+    console.log("Found on album: " + results.album.name);
+    });
+};
+
 
 function runRandomTxt() {
 	fs.readFile("random.txt", "utf8", function(err, data) {
-		data = data.split(", ");
-		var result = data[i];
-
-		for (i = 0; i < data.length; i++) {
-			console.log(result);
+		var newAction = data;
+		if (newAction.charAt(i) === ",") {
+			newAction = newAction.substring(0, i);
+			var newSearch = newAction.substring(i + 1);
 		}
+		console.log(data);
+		console.log(newAction);
+		console.log(newSearch);
 	})
 }
