@@ -8,22 +8,27 @@ var spotify = require("spotify");
 var action = process.argv[2];
 
 //Switch statements for which conditions to run when an action is passed.
-switch (action) {
-	case "movie-this":
-		findMovie();
-		break;
+if (action === "movie-this" || "spotify-this-song" || "my-tweets") {
+	switch (action) {
+		case "movie-this":
+			findMovie();
+			break;
 
-	case "my-tweets":
-		pullTweets();
-		break;
+		case "my-tweets":
+			pullTweets();
+			break;
 
-	case "spotify-this-song":
-		songInfo();
-		break;
+		case "spotify-this-song":
+			songInfo();
+			break;
 
-	case "do-what-it-says":
-		runRandomTxt();
-		break;
+		case "do-what-it-says":
+			runRandomTxt();
+			break;
+	}
+} else {
+	console.log("no.")
+	// console.log("Please use one of the appropriate commands.\nYou may type: \"spotify-this-song\", \"movie-this\", or \"my-tweets\"");
 }
 
 //Function which uses OMDB to pull information about title passed in by user.
@@ -97,18 +102,27 @@ function songInfo() {
 //Function will pull text from other file and perform whatever action is present based on previous three functions.
 function runRandomTxt() {
 	//File system to read random.txt file.
-	fs.readFile("random.txt", "utf8", function(err, data) {
-		//Separating the action portion from the search term portion of input in the txt file.
-		for (var i = 0; i < data.length; i++) {
-			if (data.charAt(i) === ",") {
-				action = data.substring(0, i);
-			}
-		}
-		queryInput = data.substring(i + 1);
-		for (var i = 0; queryInput.length; i++) {
-			if (queryInput.charAt(i) === " ") {
-				queryInput = queryInput.substring(0, i) + "+" + queryInput.substring(i + 1);
-			}
-		}
-	})
+    fs.readFile("random.txt", "utf8", function(err, data) {
+        var newStuff = data.split(",");
+        action = newStuff[0];
+        queryInput = newStuff[1].substring(1, newStuff[1].length-1);
+
+        if (action === "movie-this" || "spotify-this-song" || "my-tweets") {
+	        switch (action){
+	            case "movie-this":
+	                findMovies(queryInput);
+	                break;
+
+				case "my-tweets":
+					pullTweets();
+					break;
+
+	            case "spotify-this-song":
+	                songInfo(queryInput);
+	                break;
+	        }
+	    } else {
+	    	console.log("Please use one of the appropriate commands. \n You may type: \"spotify-this-song\", \"movie-this\", or \"my-tweets\"");
+	    }
+    });
 }
