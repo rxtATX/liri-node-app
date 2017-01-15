@@ -26,7 +26,8 @@ inquirer.prompt([
 				message: "What movie would you like to search for?"
 			} 
 		]).then(function(info) {
-			findMovie(info.queryInput);
+			queryInput = info.queryInput;
+			findMovie(queryInput);
 		});
 	} else if (info.action === "spotify-this-song") {
 		inquirer.prompt([
@@ -36,7 +37,8 @@ inquirer.prompt([
 				message: "What song would you like to search for?"
 			} 
 		]).then(function(info) {
-			songInfo(info.queryInput);
+			queryInput = info.queryInput;
+			songInfo(queryInput);
 		});
 	} else if (info.action === "my-tweets") {
 		inquirer.prompt([
@@ -46,7 +48,8 @@ inquirer.prompt([
 				message: "Which user's tweets would you like to search for?"
 			} 
 		]).then(function(info) {
-			pullTweets(info.queryInput);
+			queryInput = info.queryInput;
+			pullTweets(queryInput);
 		});	
 	} else if (info.action === "do-what-it-says") {
 		//Skip input prompt and proceed to function call.
@@ -54,24 +57,6 @@ inquirer.prompt([
 	}
 });
 
-// .then(function(info) {
-// 	console.log(info);
-	// var queryInput = info.queryInput;
-	//Switch statements for which conditions to run when an action is passed.
-	// switch (info.action) {
-	// 	case "movie-this":
-	// 		findMovie(queryInput);
-	// 		break;
-
-	// 	case "my-tweets":
-	// 		pullTweets(queryInput);
-	// 		break;
-
-	// 	case "spotify-this-song":
-	// 		songInfo(queryInput);
-	// 		break;
-	// }
-// });
 
 //Function which uses OMDB to pull information about title passed in by user.
 function findMovie() {
@@ -128,19 +113,20 @@ function runRandomTxt() {
 	//File system to read random.txt file.
 	fs.readFile("random.txt", "utf8", function(err, data) {
 	    var newStuff = data.split(",");
+	    var newAction = newStuff[0];
 	    queryInput = newStuff[1].substring(1, newStuff[1].length-1);
 
-		switch (newStuff){
+		switch (newAction){
 		    case "movie-this":
-		        findMovies(queryInput);
+		        findMovies();
 		        break;
 
 			case "my-tweets":
-				pullTweets(queryInput);
+				pullTweets();
 				break;
 
 		    case "spotify-this-song":
-		        songInfo(queryInput);
+		        songInfo();
 		        break;
 		}
 	});
