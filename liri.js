@@ -66,7 +66,29 @@ function findMovie() {
 
 //Function which will pull the 20 more recent tweets.
 function pullTweets() {
-	//Needs to be done
+	var client = new twitter(require("keys.js").twitterKeys);
+	//Takes the value of the array in the [3] position.
+	var queryInput = process.argv[3];
+	//Loop which will filter through user input and replace any spaces with + to pass into query URL.
+	for (var i = 0; i < queryInput.length; i++) {
+		if (queryInput.charAt(i) === " ") {
+			queryInput = queryInput.substring(0, i) + "+" + queryInput.substring(i + 1);
+		}
+	}
+
+	client.get('statuses/user_timeline', {screen_name: queryInput, count: 20}, function(error, tweets, response) {
+
+		if(error) {
+			console.log('Error occurred: ' + error);
+			return;
+
+		} else {
+			for(var i = 0; i < tweets.length; i++) {
+				console.log(tweets[i].created_at.substring(0, 19) + "\n" + 
+							tweets[i].text + "\n");
+			}
+		}
+	});
 }
 
 //Function will process song input through Spotify API and return details.
@@ -122,7 +144,7 @@ function runRandomTxt() {
 	                break;
 	        }
 	    } else {
-	    	console.log("Please use one of the appropriate commands. \n You may type: \"spotify-this-song\", \"movie-this\", or \"my-tweets\"");
+	    	console.log("Please use one of the appropriate commands. \nYou may type: \"spotify-this-song\", \"movie-this\", or \"my-tweets\"");
 	    }
     });
 }
