@@ -1,47 +1,62 @@
 //All the NPM requirements for the program to work.
 var request = require("request");
 var fs = require("fs");
-var twitter = require("twitter");
+var Twitter = require("twitter");
 var spotify = require("spotify");
+var inquirer = require("inquirer");
+var queryInput;
 
 // Create the variable to read which of the functions should run based on user input in Git Bash.
-var action = process.argv[2];
-
-//Switch statements for which conditions to run when an action is passed.
-if (action === "movie-this" || "spotify-this-song" || "my-tweets") {
-	switch (action) {
-		case "movie-this":
-			findMovie();
-			break;
-
-		case "my-tweets":
-			pullTweets();
-			break;
-
-		case "spotify-this-song":
-			songInfo();
-			break;
-
-		case "do-what-it-says":
-			runRandomTxt();
-			break;
+inquirer.prompt([
+	{
+		type: "list",
+		name: "action",
+		message: "What type of search would you like to do?",
+		choices: ["movie-this", "spotify-this-song", "my-tweets", "do-what-it-says"]
 	}
-} else {
-	console.log("no.")
-	// console.log("Please use one of the appropriate commands.\nYou may type: \"spotify-this-song\", \"movie-this\", or \"my-tweets\"");
-}
+]).then(function(info) {
+	//Conditions to change prompt input text based on user's previous selection.
+	if (info.action === "movie-this") {
+		inquirer.prompt([
+			{
+				type: "input",
+				name: "queryInput",
+				message: "What movie would you like to search for?"
+			} 
+		]).then(function(info) {
+			queryInput = info.queryInput;
+			findMovie(queryInput);
+		});
+	} else if (info.action === "spotify-this-song") {
+		inquirer.prompt([
+			{
+				type: "input",
+				name: "queryInput",
+				message: "What song would you like to search for?"
+			} 
+		]).then(function(info) {
+			queryInput = info.queryInput;
+			songInfo(queryInput);
+		});
+	} else if (info.action === "my-tweets") {
+		inquirer.prompt([
+			{
+				type: "input",
+				name: "queryInput",
+				message: "Which user's tweets would you like to search for?"
+			} 
+		]).then(function(info) {
+			queryInput = info.queryInput;
+			pullTweets(queryInput);
+		});	
+	} else if (info.action === "do-what-it-says") {
+		//Skip input prompt and proceed to function call.
+		runRandomTxt();
+	}
+});
 
 //Function which uses OMDB to pull information about title passed in by user.
 function findMovie() {
-	//Takes the value of the array in the [3] position.
-	var queryInput = process.argv[3];
-	//Loop which will filter through user input and replace any spaces with + to pass into query URL.
-	for (var i = 0; i < queryInput.length; i++) {
-		if (queryInput.charAt(i) === " ") {
-			queryInput = queryInput.substring(0, i) + "+" + queryInput.substring(i + 1);
-		}
-	}
-
 	// Then run a request to the OMDB API with the movie specified.
 	var queryUrl = "http://www.omdbapi.com/?t=" + queryInput + "&y=&plot=short&r=json";
 
@@ -66,24 +81,15 @@ function findMovie() {
 
 //Function which will pull the 20 more recent tweets.
 function pullTweets() {
-	var client = new twitter(require("keys.js").twitterKeys);
-	//Takes the value of the array in the [3] position.
-	var queryInput = process.argv[3];
-	//Loop which will filter through user input and replace any spaces with + to pass into query URL.
-	for (var i = 0; i < queryInput.length; i++) {
-		if (queryInput.charAt(i) === " ") {
-			queryInput = queryInput.substring(0, i) + "+" + queryInput.substring(i + 1);
-		}
-	}
+	var client = new Twitter(require("./keys.js").twitterKeys);
 
 	client.get('statuses/user_timeline', {screen_name: queryInput, count: 20}, function(error, tweets, response) {
 
 		if(error) {
 			console.log('Error occurred: ' + error);
 			return;
-
 		} else {
-			for(var i = 0; i < tweets.length; i++) {
+			for(var i = 0; i<tweets.length; i++) {
 				console.log(tweets[i].created_at.substring(0, 19) + "\n" + 
 							tweets[i].text + "\n");
 			}
@@ -93,15 +99,6 @@ function pullTweets() {
 
 //Function will process song input through Spotify API and return details.
 function songInfo() {
-	//Takes the value of the array in the [3] position.	
-	var queryInput = process.argv[3];
-	//Loop which will filter through user input and replace any spaces with + to pass into query URL.
-	for (var i = 0; i < queryInput.length; i++) {
-		if (queryInput.charAt(i) === " ") {
-			queryInput = queryInput.substring(0, i) + "+" + queryInput.substring(i + 1);
-		}
-	}
-
 	// Then create a request to the queryUrl.
     spotify.search({ type: 'track', query: queryInput }, 
     function(err, data) {
@@ -119,32 +116,28 @@ function songInfo() {
 		    console.log("Found on album: " + results.album.name);
 	    }
     });
-};
+}
 
 //Function will pull text from other file and perform whatever action is present based on previous three functions.
 function runRandomTxt() {
 	//File system to read random.txt file.
-    fs.readFile("random.txt", "utf8", function(err, data) {
-        var newStuff = data.split(",");
-        action = newStuff[0];
-        queryInput = newStuff[1].substring(1, newStuff[1].length-1);
+	fs.readFile("random.txt", "utf8", function(err, data) {
+	    var newStuff = data.split(",");
+	    var newAction = newStuff[0];
+	    queryInput = newStuff[1].substring(1, newStuff[1].length-3);
 
-        if (action === "movie-this" || "spotify-this-song" || "my-tweets") {
-	        switch (action){
-	            case "movie-this":
-	                findMovies(queryInput);
-	                break;
+		switch (newAction){
+		    case "movie-this":
+		        findMovie(queryInput);
+		        break;
 
-				case "my-tweets":
-					pullTweets();
-					break;
+			case "my-tweets":
+				pullTweets(queryInput);
+				break;
 
-	            case "spotify-this-song":
-	                songInfo(queryInput);
-	                break;
-	        }
-	    } else {
-	    	console.log("Please use one of the appropriate commands. \nYou may type: \"spotify-this-song\", \"movie-this\", or \"my-tweets\"");
-	    }
-    });
+		    case "spotify-this-song":
+		        songInfo(queryInput);
+		        break;
+		}
+	});
 }
