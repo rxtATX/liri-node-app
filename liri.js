@@ -85,14 +85,14 @@ function pullTweets() {
 
 	client.get('statuses/user_timeline', {screen_name: queryInput, count: 20}, function(error, tweets, response) {
 
-		if(error) {
-			console.log('Error occurred: ' + error);
-			return;
-		} else {
-			for(var i = 0; i<tweets.length; i++) {
-				console.log(tweets[i].created_at.substring(0, 19) + "\n" + 
-							tweets[i].text + "\n");
+		if(!error) {
+			for(var i = 0; i < tweets.length; i++) {
+				console.log(tweets[i].created_at.substring(0, 19));
+				console.log(tweets[i].text);
 			}
+		} else {
+			console.log(error);
+			return;
 		}
 	});
 }
@@ -102,7 +102,7 @@ function songInfo() {
 	// Then create a request to the queryUrl.
     spotify.search({ type: 'track', query: queryInput }, 
     function(err, data) {
-	    	//If there is an error:
+	    //If there is an error:
 	    if (err) {
             console.log('Error occurred: ' + err);
             return;
