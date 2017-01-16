@@ -27,6 +27,9 @@ inquirer.prompt([
 			} 
 		]).then(function(info) {
 			queryInput = info.queryInput;
+			if (queryInput === "" || queryInput === undefined) {
+	  			queryInput = "Mr Nobody";
+			}
 			findMovie(queryInput);
 		});
 	} else if (action === "spotify-this-song") {
@@ -38,6 +41,9 @@ inquirer.prompt([
 			} 
 		]).then(function(info) {
 			queryInput = info.queryInput;
+			if (queryInput === "" || queryInput === undefined) {
+	    		queryInput = "I saw the sign";
+	    	} 
 			songInfo(queryInput);
 		});
 	} else if (action === "my-tweets") {
@@ -49,6 +55,9 @@ inquirer.prompt([
 			} 
 		]).then(function(info) {
 			queryInput = info.queryInput;
+			if (queryInput === "" || queryInput === undefined) {
+				queryInput = "rxtATX";
+			}
 			pullTweets(queryInput);
 		});	
 	} else if (action === "do-what-it-says") {
@@ -68,6 +77,10 @@ function findMovie() {
 	// If the request is successful.
 	  if (!error && response.statusCode === 200) {
 	  	var returned = JSON.parse(body);
+	  	//Validation for misspelled input.
+	  	if (returned.Title === undefined) {
+	  		tryAgain();
+	  	} else {
 	    // Parse the body of the site and recover pertinent information.
 	    console.log("Movie title: " + returned.Title);
 	    console.log("Year produced: " + returned.Year);
@@ -77,6 +90,10 @@ function findMovie() {
 	    console.log("Story: " + returned.Plot);
 	    console.log("Cast: " + returned.Actors);
 	    console.log("Rotten Tomatoes Metascore: " + returned.Metascore);
+
+	    fs.appendFile("log.txt", "\n" + "Movie title: " + returned.Title + "\n" +
+			"Year produced: " + returned.Year + "\n" + "Rated: " + returned.Rated + "\n" + "Made in: " + returned.Country + "\n" + returned.Language + "\n" + "Story: " + returned.Plot + "\n" + "Cast: " + returned.Actors + "\n" + "Rotten Tomatoes Metascore: " + returned.Metascore + "\n" + "-----------------------------------------------" + "\n" + "-----------------------------------------------" + "\n");
+	}
 	  } else {
 	  	//If request is unsuccessful.
 	  	console.log(error);
@@ -91,14 +108,17 @@ function pullTweets() {
 	//Runs the search for the time of post and text of post based on username and returns up to 20 tweets.
 	client.get('statuses/user_timeline', {screen_name: queryInput, count: 20}, function(error, tweets, response) {
 
-		if(!error) {
+		if(error) {
+			console.log(error);
+			tryAgain();
+			return;
+		} else {
 			for(var i = 0; i < tweets.length; i++) {
 				console.log(tweets[i].created_at.substring(0, 19));
 				console.log(tweets[i].text);
+
+			    fs.appendFile("log.txt", "\n" + tweets[i].created_at.substring(0, 19) + "\n" + tweets[i].text + "\n" + "-----------------------------------------------" + "\n" + "-----------------------------------------------" + "\n");
 			}
-		} else {
-			console.log(error);
-			return;
 		}
 	});
 }
@@ -112,14 +132,21 @@ function songInfo() {
 	    if (err) {
             console.log('Error occurred: ' + err);
             return;
-	    } else {
-		// If the request is successful.
+		} else {
 		 	var results = data.tracks.items[0];
-		 	// Filter through the JSON object and recover pertinent information.
-		    console.log("Artist: " + results.artists[0].name);
-		    console.log("Song name: " + results.name);
-		    console.log("Listen here: " + results.preview_url);
-		    console.log("Found on album: " + results.album.name);
+			//Validation for misspelled input
+			if (results === undefined) {
+				tryAgain();
+			} else {
+			 	//If the request is successful filter through the JSON object and recover pertinent information.
+			    console.log("Artist: " + results.artists[0].name);
+			    console.log("Song name: " + results.name);
+			    console.log("Listen here: " + results.preview_url);
+			    console.log("Found on album: " + results.album.name);
+
+			    fs.appendFile("log.txt", "\n" + "Artist(s): " + results.artists[0].name + "\n" +
+					"Song Name: " + results.name + "\n" + "Preview Link: " + results.preview_url + "\n" + "Album: " + results.album.name + "\n" + "-----------------------------------------------" + "\n" + "-----------------------------------------------" + "\n");
+			}
 	    }
     });
 }
@@ -134,6 +161,33 @@ function runRandomTxt() {
 	    queryInput = newStuff[1].substring(1, newStuff[1].length-3);
 	    //New switch case to process text present in random.txt file.
 		switch (newAction){
+		    case "movie-this":
+		        findMovie(queryInput);
+		        break;
+
+			case "my-tweets":
+				pullTweets(queryInput);
+				break;
+
+		    case "spotify-this-song":
+		        songInfo(queryInput);
+		        break;
+		}
+	});
+}
+
+function tryAgain() {
+	console.log("You might have spelled something wrong. Try again.");
+		inquirer.prompt([
+		{
+			type: "input",
+			name: "queryInput",
+			message: "What did you mean to type?"
+		} 
+	]).then(function(info) {
+		queryInput = info.queryInput;
+
+		switch (action){
 		    case "movie-this":
 		        findMovie(queryInput);
 		        break;
