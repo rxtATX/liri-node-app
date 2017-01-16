@@ -28,6 +28,7 @@ inquirer.prompt([
 		]).then(function(info) {
 			queryInput = info.queryInput;
 			if (queryInput === "" || queryInput === undefined) {
+				console.log("You left the search term blank; check out this movie!")
 	  			queryInput = "Mr Nobody";
 			}
 			findMovie(queryInput);
@@ -42,6 +43,7 @@ inquirer.prompt([
 		]).then(function(info) {
 			queryInput = info.queryInput;
 			if (queryInput === "" || queryInput === undefined) {
+				console.log("You left the search term blank; check out this song!");
 	    		queryInput = "I saw the sign";
 	    	} 
 			songInfo(queryInput);
@@ -56,7 +58,8 @@ inquirer.prompt([
 		]).then(function(info) {
 			queryInput = info.queryInput;
 			if (queryInput === "" || queryInput === undefined) {
-				queryInput = "rxtATX";
+				console.log("You left the search term blank; check out this twitter account!")
+				queryInput = "BarackObama";
 			}
 			pullTweets(queryInput);
 		});	
@@ -114,10 +117,12 @@ function pullTweets() {
 			return;
 		} else {
 			for(var i = 0; i < tweets.length; i++) {
+				console.log("\n");
+				console.log("Tweet #" + [i + 1] + " from user @" + queryInput + ":");
 				console.log(tweets[i].created_at.substring(0, 19));
 				console.log(tweets[i].text);
 
-			    fs.appendFile("log.txt", "\n" + tweets[i].created_at.substring(0, 19) + "\n" + tweets[i].text + "\n" + "-----------------------------------------------" + "\n" + "-----------------------------------------------" + "\n");
+			    fs.appendFile("log.txt", "\n" + "Tweet #" + [i + 1] + " from user @" + queryInput + ":" + "\n" + tweets[i].created_at.substring(0, 19) + "\n" + tweets[i].text + "\n" + "-----------------------------------------------" + "\n" + "-----------------------------------------------" + "\n");
 			}
 		}
 	});
