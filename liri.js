@@ -4,6 +4,7 @@ var fs = require("fs");
 var Twitter = require("twitter");
 var spotify = require("spotify");
 var inquirer = require("inquirer");
+var action;
 var queryInput;
 
 // Create the variable to read which of the functions should run based on user input in Git Bash.
@@ -15,8 +16,9 @@ inquirer.prompt([
 		choices: ["movie-this", "spotify-this-song", "my-tweets", "do-what-it-says"]
 	}
 ]).then(function(info) {
+	action = info.action;
 	//Conditions to change prompt input text based on user's previous selection.
-	if (info.action === "movie-this") {
+	if (action === "movie-this") {
 		inquirer.prompt([
 			{
 				type: "input",
@@ -27,7 +29,7 @@ inquirer.prompt([
 			queryInput = info.queryInput;
 			findMovie(queryInput);
 		});
-	} else if (info.action === "spotify-this-song") {
+	} else if (action === "spotify-this-song") {
 		inquirer.prompt([
 			{
 				type: "input",
@@ -38,7 +40,7 @@ inquirer.prompt([
 			queryInput = info.queryInput;
 			songInfo(queryInput);
 		});
-	} else if (info.action === "my-tweets") {
+	} else if (action === "my-tweets") {
 		inquirer.prompt([
 			{
 				type: "input",
@@ -49,7 +51,7 @@ inquirer.prompt([
 			queryInput = info.queryInput;
 			pullTweets(queryInput);
 		});	
-	} else if (info.action === "do-what-it-says") {
+	} else if (action === "do-what-it-says") {
 		//Skip input prompt and proceed to function call.
 		runRandomTxt();
 	}
@@ -75,14 +77,18 @@ function findMovie() {
 	    console.log("Story: " + returned.Plot);
 	    console.log("Cast: " + returned.Actors);
 	    console.log("Rotten Tomatoes Metascore: " + returned.Metascore);
+	  } else {
+	  	//If request is unsuccessful.
+	  	console.log(error);
 	  }
 	});
 }
 
 //Function which will pull the 20 more recent tweets.
 function pullTweets() {
+	//Declares that the twitterKeys object in keys.js are necessary to provide Authorization to use API.
 	var client = new Twitter(require("./keys.js").twitterKeys);
-
+	//Runs the search for the time of post and text of post based on username and returns up to 20 tweets.
 	client.get('statuses/user_timeline', {screen_name: queryInput, count: 20}, function(error, tweets, response) {
 
 		if(!error) {
@@ -122,10 +128,11 @@ function songInfo() {
 function runRandomTxt() {
 	//File system to read random.txt file.
 	fs.readFile("random.txt", "utf8", function(err, data) {
+		//Seperates the data in random.txt and assigns to useful variables.
 	    var newStuff = data.split(",");
 	    var newAction = newStuff[0];
 	    queryInput = newStuff[1].substring(1, newStuff[1].length-3);
-
+	    //New switch case to process text present in random.txt file.
 		switch (newAction){
 		    case "movie-this":
 		        findMovie(queryInput);
