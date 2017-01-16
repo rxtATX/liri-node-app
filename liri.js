@@ -28,7 +28,7 @@ inquirer.prompt([
 		]).then(function(info) {
 			queryInput = info.queryInput;
 			if (queryInput === "" || queryInput === undefined) {
-				console.log("You left the search term blank; check out this movie!")
+				console.log("You left the search term blank; check out this movie!");
 	  			queryInput = "Mr Nobody";
 			}
 			findMovie(queryInput);
@@ -58,7 +58,7 @@ inquirer.prompt([
 		]).then(function(info) {
 			queryInput = info.queryInput;
 			if (queryInput === "" || queryInput === undefined) {
-				console.log("You left the search term blank; check out this twitter account!")
+				console.log("You left the search term blank; check out this twitter account!");
 				queryInput = "BarackObama";
 			}
 			pullTweets(queryInput);
@@ -94,6 +94,7 @@ function findMovie() {
 	    console.log("Cast: " + returned.Actors);
 	    console.log("Rotten Tomatoes Metascore: " + returned.Metascore);
 
+	    //Replicate search information to log.txt.
 	    fs.appendFile("log.txt", "\n" + "Movie title: " + returned.Title + "\n" +
 			"Year produced: " + returned.Year + "\n" + "Rated: " + returned.Rated + "\n" + "Made in: " + returned.Country + "\n" + returned.Language + "\n" + "Story: " + returned.Plot + "\n" + "Cast: " + returned.Actors + "\n" + "Rotten Tomatoes Metascore: " + returned.Metascore + "\n" + "-----------------------------------------------" + "\n" + "-----------------------------------------------" + "\n");
 	}
@@ -110,18 +111,20 @@ function pullTweets() {
 	var client = new Twitter(require("./keys.js").twitterKeys);
 	//Runs the search for the time of post and text of post based on username and returns up to 20 tweets.
 	client.get('statuses/user_timeline', {screen_name: queryInput, count: 20}, function(error, tweets, response) {
-
+		//In case of error gives the user a chance to search again.
 		if(error) {
 			console.log(error);
 			tryAgain();
 			return;
 		} else {
+			//If no error, run the 20 most recent tweets.
 			for(var i = 0; i < tweets.length; i++) {
 				console.log("\n");
 				console.log("Tweet #" + [i + 1] + " from user @" + queryInput + ":");
 				console.log(tweets[i].created_at.substring(0, 19));
 				console.log(tweets[i].text);
 
+				//Replicate search information to log.txt.
 			    fs.appendFile("log.txt", "\n" + "Tweet #" + [i + 1] + " from user @" + queryInput + ":" + "\n" + tweets[i].created_at.substring(0, 19) + "\n" + tweets[i].text + "\n" + "-----------------------------------------------" + "\n" + "-----------------------------------------------" + "\n");
 			}
 		}
@@ -133,13 +136,14 @@ function songInfo() {
 	// Then create a request to the queryUrl.
     spotify.search({ type: 'track', query: queryInput }, 
     function(err, data) {
-	    //If there is an error:
+	    //If there is an error gives the user a chance to search again.
 	    if (err) {
             console.log('Error occurred: ' + err);
+            tryAgain();
             return;
 		} else {
 		 	var results = data.tracks.items[0];
-			//Validation for misspelled input
+			//Validation for misspelled input.
 			if (results === undefined) {
 				tryAgain();
 			} else {
@@ -149,6 +153,7 @@ function songInfo() {
 			    console.log("Listen here: " + results.preview_url);
 			    console.log("Found on album: " + results.album.name);
 
+			    //Replicate search information to log.txt.
 			    fs.appendFile("log.txt", "\n" + "Artist(s): " + results.artists[0].name + "\n" +
 					"Song Name: " + results.name + "\n" + "Preview Link: " + results.preview_url + "\n" + "Album: " + results.album.name + "\n" + "-----------------------------------------------" + "\n" + "-----------------------------------------------" + "\n");
 			}
@@ -181,6 +186,7 @@ function runRandomTxt() {
 	});
 }
 
+//Function to accept secondary input another time in case of error or misspelling.
 function tryAgain() {
 	console.log("You might have spelled something wrong. Try again.");
 		inquirer.prompt([
@@ -191,7 +197,7 @@ function tryAgain() {
 		} 
 	]).then(function(info) {
 		queryInput = info.queryInput;
-
+		//New switch case to take in user's second attempt at query.
 		switch (action){
 		    case "movie-this":
 		        findMovie(queryInput);
