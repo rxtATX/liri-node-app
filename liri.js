@@ -104,8 +104,7 @@ function findMovie() {
 	    console.log("Rotten Tomatoes Metascore: " + returned.Metascore);
 
 	    //Replicate search information to log.txt.
-	    fs.appendFile("log.txt", "\n" + "Movie title: " + returned.Title + "\n" +
-			"Year produced: " + returned.Year + "\n" + "Rated: " + returned.Rated + "\n" + "Made in: " + returned.Country + "\n" + returned.Language + "\n" + "Story: " + returned.Plot + "\n" + "Cast: " + returned.Actors + "\n" + "Rotten Tomatoes Metascore: " + returned.Metascore + "\n" + "-----------------------------------------------" + "\n" + "-----------------------------------------------" + "\n");
+	    fs.appendFile("log.txt", "\n" + "New Movie Search" + "\n" + "-----------------------------------------------" + "\n" + "-----------------------------------------------" + "\n" + "Movie title: " + returned.Title + "\n" + "Year produced: " + returned.Year + "\n" + "Rated: " + returned.Rated + "\n" + "Made in: " + returned.Country + "\n" + returned.Language + "\n" + "Story: " + returned.Plot + "\n" + "Cast: " + returned.Actors + "\n" + "Rotten Tomatoes Metascore: " + returned.Metascore + "\n" + "-----------------------------------------------" + "\n" + "-----------------------------------------------" + "\n");
 	}
 	  } else {
 	  	//If request is unsuccessful.
@@ -134,7 +133,7 @@ function pullTweets() {
 				console.log(tweets[i].text);
 
 				//Replicate search information to log.txt.
-			    fs.appendFile("log.txt", "\n" + "Tweet #" + [i + 1] + " from user @" + queryInput + ":" + "\n" + tweets[i].created_at.substring(0, 19) + "\n" + tweets[i].text + "\n" + "-----------------------------------------------" + "\n" + "-----------------------------------------------" + "\n");
+			    fs.appendFile("log.txt", "\n" + "New User Search:" + "\n" + "-----------------------------------------------" + "\n" + "-----------------------------------------------" + "\n" + "Tweet #" + [i + 1] + " from user @" + queryInput + ":" + "\n" + tweets[i].created_at.substring(0, 19) + "\n" + tweets[i].text + "\n" + "-----------------------------------------------" + "\n" + "-----------------------------------------------" + "\n");
 			}
 		}
 	});
@@ -156,27 +155,29 @@ function songInfo() {
 			if (results === undefined) {
 				tryAgain();
 			} else {
-				if (results.artists[0].name === artistQuery) {
+				var artist = results.artists[0].name;
+				var artistLowerCase = artist.toLowerCase();
+				if (artist === artistQuery || artistQuery === artistLowerCase) {
 			 	//If the request is successful filter through the JSON object and recover pertinent information.
-			    console.log("Artist: " + results.artists[0].name);
+			    console.log("Artist: " + artist);
 			    console.log("Song name: " + results.name);
 			    console.log("Listen here: " + results.preview_url);
 			    console.log("Found on album: " + results.album.name);
 
 			    //Replicate search information to log.txt.
-			    fs.appendFile("log.txt", "\n" + "Artist(s): " + results.artists[0].name + "\n" +
+			    fs.appendFile("log.txt", "\n" + "New Song Search:" + "\n" + "-----------------------------------------------" + "\n" + "Artist(s): " + artist + "\n" +
 					"Song Name: " + results.name + "\n" + "Preview Link: " + results.preview_url + "\n" + "Album: " + results.album.name + "\n" + "-----------------------------------------------" + "\n" + "-----------------------------------------------" + "\n");
 				} else {
 					if (artistQuery !== "Ace of Base") {					
 						console.log("This might not be an exact match, but here's the closest result:");
 					}
-				    console.log("Artist: " + results.artists[0].name);
+				    console.log("Artist: " + artist);
 				    console.log("Song name: " + results.name);
 				    console.log("Listen here: " + results.preview_url);
 				    console.log("Found on album: " + results.album.name);
 
 				    //Replicate search information to log.txt.
-				    fs.appendFile("log.txt", "\n" + "Artist(s): " + results.artists[0].name + "\n" +
+				    fs.appendFile("log.txt", "\n" + "New Song Search:" + "\n" + "-----------------------------------------------" + "\n" + "Artist(s): " + artist + "\n" +
 						"Song Name: " + results.name + "\n" + "Preview Link: " + results.preview_url + "\n" + "Album: " + results.album.name + "\n" + "-----------------------------------------------" + "\n" + "-----------------------------------------------" + "\n");					
 				}
 			}
