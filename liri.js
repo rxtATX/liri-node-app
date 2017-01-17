@@ -39,13 +39,22 @@ inquirer.prompt([
 				type: "input",
 				name: "queryInput",
 				message: "What song would you like to search for?"
+			},
+			{
+				type: "input",
+				name: "artistQuery",
+				message: "Who is this song by? (Press Enter key to skip)"
 			} 
 		]).then(function(info) {
+			artistQuery = info.artistQuery;
 			queryInput = info.queryInput;
 			if (queryInput === "" || queryInput === undefined) {
 				console.log("You left the search term blank; check out this song!");
-	    		queryInput = "I saw the sign";
-	    	} 
+	    		queryInput = "The Sign";
+	    	} else if (artistQuery === "" || artistQuery === undefined) {
+	    		console.log("You didn't input an artist, so here's the best guess:");
+	    		artistQuery = "Ace of Base";
+	    	}
 			songInfo(queryInput);
 		});
 	} else if (action === "my-tweets") {
@@ -134,11 +143,11 @@ function pullTweets() {
 //Function will process song input through Spotify API and return details.
 function songInfo() {
 	// Then create a request to the queryUrl.
-    spotify.search({ type: 'track', query: queryInput }, 
+    spotify.search({ type: 'track', query: queryInput },
     function(err, data) {
 	    //If there is an error gives the user a chance to search again.
 	    if (err) {
-            console.log('Error occurred: ' + err);
+            console.log(err);
             tryAgain();
             return;
 		} else {
@@ -147,6 +156,7 @@ function songInfo() {
 			if (results === undefined) {
 				tryAgain();
 			} else {
+				if (results.artists[0].name === artistQuery) {
 			 	//If the request is successful filter through the JSON object and recover pertinent information.
 			    console.log("Artist: " + results.artists[0].name);
 			    console.log("Song name: " + results.name);
@@ -156,6 +166,19 @@ function songInfo() {
 			    //Replicate search information to log.txt.
 			    fs.appendFile("log.txt", "\n" + "Artist(s): " + results.artists[0].name + "\n" +
 					"Song Name: " + results.name + "\n" + "Preview Link: " + results.preview_url + "\n" + "Album: " + results.album.name + "\n" + "-----------------------------------------------" + "\n" + "-----------------------------------------------" + "\n");
+				} else {
+					if (artistQuery !== "Ace of Base") {					
+						console.log("This might not be an exact match, but here's the closest result:");
+					}
+				    console.log("Artist: " + results.artists[0].name);
+				    console.log("Song name: " + results.name);
+				    console.log("Listen here: " + results.preview_url);
+				    console.log("Found on album: " + results.album.name);
+
+				    //Replicate search information to log.txt.
+				    fs.appendFile("log.txt", "\n" + "Artist(s): " + results.artists[0].name + "\n" +
+						"Song Name: " + results.name + "\n" + "Preview Link: " + results.preview_url + "\n" + "Album: " + results.album.name + "\n" + "-----------------------------------------------" + "\n" + "-----------------------------------------------" + "\n");					
+				}
 			}
 	    }
     });

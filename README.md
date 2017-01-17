@@ -4,6 +4,7 @@ Language Interpretation Recognition Interface
 This is a NODE app wherein the user make make selections on what types of searches they would like to perform, and input the information on which they'd like details.
 
 Options include:
+	
 	movie-this
 This is a movie search using OMDB to return information like:
 	Title of the movie.
